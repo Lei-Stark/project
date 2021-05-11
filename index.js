@@ -1,10 +1,10 @@
-const http = require("http");
-const https = require("https");
-const cheerio = require("cheerio");
-const axios = require("axios");
-const express = require("express");
-const fs = require("fs");
-const puppeteer = require("puppeteer");
+const http = require('http');
+const https = require('https');
+const cheerio = require('cheerio');
+const axios = require('axios');
+const express = require('express');
+const fs = require('fs');
+const puppeteer = require('puppeteer');
 
 //官方 自动测试化工具
 // (async () => {
@@ -63,55 +63,57 @@ const puppeteer = require("puppeteer");
 //node 爬虫
 
 (function getdata() {
-  let name = "search=weathering+with+you&lang=Chinese";
-  let smallurl = "search.php?";
-  let bigimgurl = "big.php?";
-  let urls = "https://wall.alphacoders.com/";
-  let url = urls + smallurl + name + "&page=" + 3;
-  let size = "&w=1440&h=900&type=stretch";
+  let name = 'search=apex&lang=Chinese';
+  let smallurl = 'search.php?';
+  let bigimgurl = 'big.php?';
+  let urls = 'https://wall.alphacoders.com/';
+  let url = urls + smallurl + name + '&page=' + 3;
+  let size = '&w=1440&h=900&type=stretch';
   let bigurl = urls;
 
   axios
     .get(url)
-    .then(function(response) {
+    .then(function (response) {
       let $ = cheerio.load(response.data);
-      let datas = $(".center>.thumb-container-big");
+      let datas = $('.center>.thumb-container-big');
       let list = [];
       datas.each((index, el) => {
         // list.push($(el).find('a').attr("href").toString().replace("big", "wallpaper"))
         // console.log($(el).find('a').attr("href").toString().replace("big", "wallpaper"))
-        let s = $(el)
-          .find("a")
-          .attr("href")
-          .toString();
+        let s = $(el).find('a').attr('href').toString();
         let u = bigurl + s;
         axios
           .get(u)
           .then(res => {
             let $ = cheerio.load(res.data);
-            let data = $(".main-content").attr("src");
+            let data = $('.main-content').attr('src');
             let b = s;
-            let index1 = data.lastIndexOf(".");
+            let index1 = data.lastIndexOf('.');
             let index2 = data.length;
             let name = data.substring(index1, index2);
-            let b1 = b.indexOf("=");
+            let b1 = b.indexOf('=');
             let b2 = b.length;
             let bname = b.substring(b1, b2);
             saveimg(data, bname + name);
 
             function saveimg(url, path) {
               try {
-                https.get(url, function(req, res) {
-                  var imgData = "";
-                  req.setEncoding("binary");
-                  req.on("data", function(chunk) {
+                https.get(url, function (req, res) {
+                  var imgData = '';
+                  req.setEncoding('binary');
+                  req.on('data', function (chunk) {
                     imgData += chunk;
                   });
-                  req.on("end", function() {
-                    fs.writeFile("./img/" + path, imgData, "binary", function(
-                      err
-                    ) {
-                      console.log("保存图片成功" + path);
+                  req.on('end', function () {
+                    let urlpath = './img/' + path;
+                    fs.writeFile(urlpath, imgData, 'binary', function (err) {
+                      console.log(err);
+                      if (err) {
+                        fs.mkdirSync('./img');
+                        saveimg(url, path);
+                      } else {
+                        console.log('保存图片成功' + path);
+                      }
                     });
                   });
                 });
@@ -123,7 +125,7 @@ const puppeteer = require("puppeteer");
           .catch(() => {});
       });
     })
-    .catch(function() {
+    .catch(function () {
       console.log();
     });
 })();
